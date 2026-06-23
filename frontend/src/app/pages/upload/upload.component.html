@@ -1,0 +1,292 @@
+<div class="upload-page">
+  <div class="page-header">
+    <h1>
+      <mat-icon>auto_stories</mat-icon>
+      New Evaluation
+    </h1>
+    <p>Upload your textbook, exam paper, and answers — our AI will evaluate and coach you.</p>
+  </div>
+
+  <mat-stepper linear #stepper class="upload-stepper">
+
+    <!-- ── Step 1: Student Registration ─────────────────────────────────── -->
+    <mat-step [completed]="status.student === 'done'" label="Student Profile">
+      <div class="step-content">
+        <mat-card class="upload-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>person</mat-icon>
+            <mat-card-title>Register / Identify Student</mat-card-title>
+            <mat-card-subtitle>Enter your name and email to get started.</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <form [formGroup]="studentForm" class="form-fields">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Full Name</mat-label>
+                <input matInput formControlName="name" placeholder="Jane Doe" />
+                <mat-icon matSuffix>badge</mat-icon>
+                <mat-error *ngIf="studentForm.get('name')?.hasError('required')">
+                  Name is required.
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Email Address</mat-label>
+                <input matInput type="email" formControlName="email" placeholder="jane@school.edu" />
+                <mat-icon matSuffix>email</mat-icon>
+                <mat-error *ngIf="studentForm.get('email')?.hasError('email')">
+                  Enter a valid email.
+                </mat-error>
+              </mat-form-field>
+            </form>
+          </mat-card-content>
+
+          <mat-card-actions align="end">
+            <button
+              mat-raised-button
+              color="primary"
+              [disabled]="studentForm.invalid || status.student === 'done'"
+              (click)="registerStudent()"
+            >
+              <mat-icon>check_circle</mat-icon>
+              {{ status.student === 'done' ? 'Registered ✓' : 'Register' }}
+            </button>
+            <button mat-button matStepperNext [disabled]="status.student !== 'done'">
+              Next <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+    </mat-step>
+
+    <!-- ── Step 2: Textbook Upload ───────────────────────────────────────── -->
+    <mat-step [completed]="status.textbook === 'done'" label="Textbook">
+      <div class="step-content">
+        <mat-card class="upload-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="icon-blue">menu_book</mat-icon>
+            <mat-card-title>Upload Textbook</mat-card-title>
+            <mat-card-subtitle>PDF will be indexed for AI-assisted evaluation (RAG).</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <form [formGroup]="textbookTitleForm" class="form-fields">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Textbook Title</mat-label>
+                <input matInput formControlName="title" placeholder="e.g. Physics Grade 12" />
+                <mat-icon matSuffix>title</mat-icon>
+              </mat-form-field>
+            </form>
+
+            <div class="file-drop-zone" (click)="textbookInput.click()">
+              <mat-icon class="drop-icon">upload_file</mat-icon>
+              <p *ngIf="!textbookFile">Click to select a PDF or text file</p>
+              <p *ngIf="textbookFile" class="file-name">
+                <mat-icon>description</mat-icon>
+                {{ textbookFile.name }}
+              </p>
+              <input #textbookInput type="file" accept=".pdf,.txt" hidden (change)="onTextbookFile($event)" />
+            </div>
+
+            <mat-progress-bar *ngIf="status.textbook === 'uploading'" mode="indeterminate" class="mt-8"></mat-progress-bar>
+          </mat-card-content>
+
+          <mat-card-actions align="end">
+            <button mat-button matStepperPrevious>
+              <mat-icon>arrow_back</mat-icon> Back
+            </button>
+            <button
+              mat-raised-button
+              color="primary"
+              [disabled]="!textbookFile || textbookTitleForm.invalid || status.textbook !== 'pending'"
+              (click)="uploadTextbook()"
+            >
+              <mat-icon>cloud_upload</mat-icon>
+              {{ status.textbook === 'done' ? 'Indexed ✓' : status.textbook === 'uploading' ? 'Indexing…' : 'Upload & Index' }}
+            </button>
+            <button mat-button matStepperNext [disabled]="status.textbook !== 'done'">
+              Next <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+    </mat-step>
+
+    <!-- ── Step 3: Exam Paper ────────────────────────────────────────────── -->
+    <mat-step [completed]="status.exam === 'done'" label="Exam Paper">
+      <div class="step-content">
+        <mat-card class="upload-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="icon-orange">assignment</mat-icon>
+            <mat-card-title>Upload Exam Paper</mat-card-title>
+            <mat-card-subtitle>Provide a PDF or paste the exam questions as text.</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="file-drop-zone" (click)="examInput.click()">
+              <mat-icon class="drop-icon">file_present</mat-icon>
+              <p *ngIf="!examFile">Click to select exam paper (PDF/TXT) — optional if you type below</p>
+              <p *ngIf="examFile" class="file-name">
+                <mat-icon>description</mat-icon> {{ examFile.name }}
+              </p>
+              <input #examInput type="file" accept=".pdf,.txt" hidden (change)="onExamFile($event)" />
+            </div>
+
+            <p class="or-divider"><span>OR</span></p>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Paste Exam Questions</mat-label>
+              <textarea matInput [(ngModel)]="examText" rows="6" placeholder="Q1. Explain Newton's third law..."></textarea>
+            </mat-form-field>
+
+            <mat-progress-bar *ngIf="status.exam === 'uploading'" mode="indeterminate" class="mt-8"></mat-progress-bar>
+          </mat-card-content>
+
+          <mat-card-actions align="end">
+            <button mat-button matStepperPrevious>
+              <mat-icon>arrow_back</mat-icon> Back
+            </button>
+            <button
+              mat-raised-button
+              color="accent"
+              [disabled]="status.exam !== 'pending'"
+              (click)="uploadExam()"
+            >
+              <mat-icon>send</mat-icon>
+              {{ status.exam === 'done' ? 'Saved ✓' : status.exam === 'uploading' ? 'Saving…' : 'Save Exam' }}
+            </button>
+            <button mat-button matStepperNext [disabled]="status.exam !== 'done'">
+              Next <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+    </mat-step>
+
+    <!-- ── Step 4: Answer Sheet ──────────────────────────────────────────── -->
+    <mat-step [completed]="status.answers === 'done'" label="Answer Sheet">
+      <div class="step-content">
+        <mat-card class="upload-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="icon-green">rate_review</mat-icon>
+            <mat-card-title>Upload Answer Sheet</mat-card-title>
+            <mat-card-subtitle>Submit your typed answers or upload a PDF.</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="file-drop-zone" (click)="answerInput.click()">
+              <mat-icon class="drop-icon">edit_note</mat-icon>
+              <p *ngIf="!answerFile">Click to select answer PDF/TXT — optional if you type below</p>
+              <p *ngIf="answerFile" class="file-name">
+                <mat-icon>description</mat-icon> {{ answerFile.name }}
+              </p>
+              <input #answerInput type="file" accept=".pdf,.txt" hidden (change)="onAnswerFile($event)" />
+            </div>
+
+            <p class="or-divider"><span>OR</span></p>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Type Your Answers</mat-label>
+              <textarea
+                matInput
+                [(ngModel)]="answerText"
+                rows="8"
+                placeholder="Q1. Newton's third law states that for every action there is an equal and opposite reaction..."
+              ></textarea>
+            </mat-form-field>
+
+            <mat-progress-bar *ngIf="status.answers === 'uploading'" mode="indeterminate" class="mt-8"></mat-progress-bar>
+          </mat-card-content>
+
+          <mat-card-actions align="end">
+            <button mat-button matStepperPrevious>
+              <mat-icon>arrow_back</mat-icon> Back
+            </button>
+            <button
+              mat-raised-button
+              color="accent"
+              [disabled]="status.answers !== 'pending'"
+              (click)="uploadAnswers()"
+            >
+              <mat-icon>save</mat-icon>
+              {{ status.answers === 'done' ? 'Saved ✓' : status.answers === 'uploading' ? 'Saving…' : 'Save Answers' }}
+            </button>
+            <button mat-button matStepperNext [disabled]="status.answers !== 'done'">
+              Next <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+    </mat-step>
+
+    <!-- ── Step 5: Evaluate ──────────────────────────────────────────────── -->
+    <mat-step label="Evaluate">
+      <div class="step-content">
+        <mat-card class="upload-card evaluate-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="icon-purple">psychology</mat-icon>
+            <mat-card-title>AI Evaluation</mat-card-title>
+            <mat-card-subtitle>
+              Our AI agents will analyse your answers against the textbook and generate a report &amp; study plan.
+            </mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="summary-checklist">
+              <div class="check-item" [class.done]="status.student === 'done'">
+                <mat-icon>{{ status.student === 'done' ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                Student profile
+              </div>
+              <div class="check-item" [class.done]="status.textbook === 'done'">
+                <mat-icon>{{ status.textbook === 'done' ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                Textbook indexed
+              </div>
+              <div class="check-item" [class.done]="status.exam === 'done'">
+                <mat-icon>{{ status.exam === 'done' ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                Exam paper saved
+              </div>
+              <div class="check-item" [class.done]="status.answers === 'done'">
+                <mat-icon>{{ status.answers === 'done' ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                Answers saved
+              </div>
+            </div>
+
+            <mat-progress-bar
+              *ngIf="status.evaluate === 'processing'"
+              mode="indeterminate"
+              color="accent"
+              class="mt-16"
+            ></mat-progress-bar>
+
+            <p *ngIf="status.evaluate === 'processing'" class="processing-text">
+              <mat-icon class="spin">sync</mat-icon>
+              AI agents are evaluating your answers… this may take a minute.
+            </p>
+
+            <p *ngIf="status.evaluate === 'done'" class="done-text">
+              <mat-icon>celebration</mat-icon>
+              Evaluation complete! Redirecting to your dashboard…
+            </p>
+          </mat-card-content>
+
+          <mat-card-actions align="end">
+            <button mat-button matStepperPrevious [disabled]="status.evaluate === 'processing'">
+              <mat-icon>arrow_back</mat-icon> Back
+            </button>
+            <button
+              mat-raised-button
+              color="primary"
+              class="evaluate-btn"
+              [disabled]="!allUploaded || status.evaluate !== 'pending'"
+              (click)="evaluate()"
+            >
+              <mat-icon>rocket_launch</mat-icon>
+              {{ status.evaluate === 'processing' ? 'Evaluating…' : status.evaluate === 'done' ? 'Done ✓' : 'Start Evaluation' }}
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+    </mat-step>
+
+  </mat-stepper>
+</div>

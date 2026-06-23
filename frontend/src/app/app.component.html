@@ -1,0 +1,13 @@
+<mat-toolbar color="primary" class="app-toolbar">
+  <mat-icon class="toolbar-icon">school</mat-icon>
+  <span class="toolbar-title">StudyAI</span>
+  <span class="toolbar-subtitle">Exam Evaluator &amp; Study Coach</span>
+  <span class="spacer"></span>
+  <a mat-button routerLink="/upload" routerLinkActive="active-link">
+    <mat-icon>upload_file</mat-icon> Upload
+  </a>
+</mat-toolbar>
+
+<main class="app-content">
+  <router-outlet></router-outlet>
+</main>

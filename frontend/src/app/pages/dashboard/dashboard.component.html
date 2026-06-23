@@ -1,0 +1,255 @@
+<div class="dashboard-page">
+
+  <!-- Header -->
+  <div class="dash-header">
+    <div class="student-info" *ngIf="student">
+      <div class="avatar">{{ student.name.charAt(0).toUpperCase() }}</div>
+      <div>
+        <h2>{{ student.name }}</h2>
+        <p>{{ student.email }}</p>
+      </div>
+    </div>
+    <a mat-stroked-button color="primary" routerLink="/upload">
+      <mat-icon>add</mat-icon> New Evaluation
+    </a>
+  </div>
+
+  <!-- Loading / polling state -->
+  <div *ngIf="loading || polling" class="loading-state">
+    <mat-progress-spinner mode="indeterminate" diameter="64" color="primary"></mat-progress-spinner>
+    <p *ngIf="polling">AI agents are evaluating your exam… checking every 5 seconds.</p>
+    <p *ngIf="loading && !polling">Loading your results…</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="error-state">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ error }}</p>
+    <a mat-button routerLink="/upload">Go Back</a>
+  </div>
+
+  <!-- No report yet -->
+  <div *ngIf="!loading && !polling && !report && !error" class="empty-state">
+    <mat-icon>insights</mat-icon>
+    <h3>No Report Found</h3>
+    <p>Complete an evaluation first to see your analytics here.</p>
+    <a mat-raised-button color="primary" routerLink="/upload">Start Evaluation</a>
+  </div>
+
+  <!-- Dashboard content -->
+  <div *ngIf="report" class="dash-content">
+
+    <!-- Score Overview Cards -->
+    <div class="overview-row">
+      <mat-card class="score-card" [style.borderColor]="scoreColor">
+        <mat-card-content>
+          <div class="score-circle" [style.color]="scoreColor">
+            {{ report.overall_score | number:'1.0-1' }}%
+          </div>
+          <p class="score-label" [style.color]="scoreColor">{{ scoreLabel }}</p>
+          <p class="score-sub">Overall Score</p>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="info-card weak-card">
+        <mat-card-content>
+          <mat-icon>warning_amber</mat-icon>
+          <h3>{{ report.weak_topics ? report.weak_topics.length : 0 }}</h3>
+          <p>Weak Topics</p>
+          <mat-chip-set *ngIf="report.weak_topics?.length">
+            <mat-chip *ngFor="let t of report.weak_topics" color="warn" highlighted>{{ t }}</mat-chip>
+          </mat-chip-set>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="info-card strong-card">
+        <mat-card-content>
+          <mat-icon>emoji_events</mat-icon>
+          <h3>{{ report.strong_topics ? report.strong_topics.length : 0 }}</h3>
+          <p>Strong Topics</p>
+          <mat-chip-set *ngIf="report.strong_topics?.length">
+            <mat-chip *ngFor="let t of report.strong_topics" color="primary" highlighted>{{ t }}</mat-chip>
+          </mat-chip-set>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Tab panel -->
+    <mat-tab-group [(selectedIndex)]="activeTab" animationDuration="200ms" class="dash-tabs">
+
+      <!-- ── Tab 1: Analytics ──────────────────────────────────────────── -->
+      <mat-tab label="Analytics">
+        <ng-template mat-tab-label>
+          <mat-icon>bar_chart</mat-icon>&nbsp;Analytics
+        </ng-template>
+
+        <div class="tab-content">
+          <div class="charts-row">
+            <mat-card class="chart-card">
+              <mat-card-header>
+                <mat-card-title>Topic Performance (Radar)</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <canvas baseChart
+                  [data]="radarChartData"
+                  [options]="radarChartOptions"
+                  type="radar">
+                </canvas>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card class="chart-card">
+              <mat-card-header>
+                <mat-card-title>Score by Topic (Bar)</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <canvas baseChart
+                  [data]="barChartData"
+                  [options]="barChartOptions"
+                  type="bar">
+                </canvas>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <!-- Summary -->
+          <mat-card class="summary-card">
+            <mat-card-header>
+              <mat-icon mat-card-avatar>summarize</mat-icon>
+              <mat-card-title>AI Summary</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <p>{{ report.summary }}</p>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- ── Tab 2: Answer Feedback ────────────────────────────────────── -->
+      <mat-tab label="Feedback">
+        <ng-template mat-tab-label>
+          <mat-icon>rate_review</mat-icon>&nbsp;Feedback
+        </ng-template>
+
+        <div class="tab-content">
+          <div *ngFor="let fb of report.answer_feedback; let i = index" class="feedback-item">
+            <mat-card>
+              <mat-card-header>
+                <div mat-card-avatar class="q-num">Q{{ i + 1 }}</div>
+                <mat-card-title>{{ fb['topic'] }}</mat-card-title>
+                <mat-card-subtitle>
+                  Score:
+                  <strong [style.color]="fb['score'] >= 0.8 ? '#2e7d32' : fb['score'] >= 0.6 ? '#e65100' : '#c62828'">
+                    {{ (fb['score'] * 100) | number:'1.0-0' }}%
+                  </strong>
+                </mat-card-subtitle>
+              </mat-card-header>
+
+              <mat-card-content>
+                <div class="fb-row">
+                  <div class="fb-section">
+                    <h4><mat-icon>quiz</mat-icon> Question</h4>
+                    <p>{{ fb['question'] }}</p>
+                  </div>
+                  <div class="fb-section">
+                    <h4><mat-icon>person</mat-icon> Your Answer</h4>
+                    <p>{{ fb['student_answer'] }}</p>
+                  </div>
+                  <div class="fb-section correct-answer">
+                    <h4><mat-icon>check_circle</mat-icon> Model Answer</h4>
+                    <p>{{ fb['correct_answer'] }}</p>
+                  </div>
+                </div>
+                <div class="feedback-box">
+                  <mat-icon>lightbulb</mat-icon>
+                  <span>{{ fb['feedback'] }}</span>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- ── Tab 3: Study Plan ─────────────────────────────────────────── -->
+      <mat-tab label="Study Plan">
+        <ng-template mat-tab-label>
+          <mat-icon>event_note</mat-icon>&nbsp;Study Plan
+        </ng-template>
+
+        <div class="tab-content" *ngIf="studyPlan?.plan_data; else noplan">
+
+          <div class="plan-header">
+            <mat-icon>calendar_month</mat-icon>
+            <h3>{{ studyPlan!.plan_data.duration_weeks }}-Week Study Plan</h3>
+          </div>
+
+          <!-- Tips -->
+          <mat-card class="tips-card" *ngIf="studyPlan!.plan_data.tips?.length">
+            <mat-card-header>
+              <mat-icon mat-card-avatar class="icon-yellow">tips_and_updates</mat-icon>
+              <mat-card-title>Study Tips</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <ul class="tips-list">
+                <li *ngFor="let tip of studyPlan!.plan_data.tips">
+                  <mat-icon>arrow_right</mat-icon> {{ tip }}
+                </li>
+              </ul>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Weekly goals -->
+          <div *ngFor="let week of studyPlan!.plan_data.weekly_goals" class="week-block">
+            <mat-card>
+              <mat-card-header>
+                <div mat-card-avatar class="week-avatar">W{{ week.week }}</div>
+                <mat-card-title>Week {{ week.week }} — {{ week.focus_topics.join(', ') }}</mat-card-title>
+                <mat-card-subtitle>{{ week.milestone }}</mat-card-subtitle>
+              </mat-card-header>
+
+              <mat-card-content>
+                <mat-list dense>
+                  <div *ngFor="let day of week.daily_tasks">
+                    <mat-list-item class="day-item">
+                      <mat-icon matListItemIcon>today</mat-icon>
+                      <span matListItemTitle>{{ day.day }}</span>
+                    </mat-list-item>
+                    <mat-list-item *ngFor="let task of day.tasks" class="task-item">
+                      <mat-icon matListItemIcon>check_box_outline_blank</mat-icon>
+                      <span matListItemTitle>{{ task }}</span>
+                    </mat-list-item>
+                    <mat-divider></mat-divider>
+                  </div>
+                </mat-list>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <!-- Resources -->
+          <mat-card class="resources-card" *ngIf="studyPlan!.plan_data.resources?.length">
+            <mat-card-header>
+              <mat-icon mat-card-avatar>library_books</mat-icon>
+              <mat-card-title>Recommended Resources</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div *ngFor="let r of studyPlan!.plan_data.resources" class="resource-row">
+                <strong>{{ r.topic }}</strong>
+                <ul>
+                  <li *ngFor="let s of r.suggestions">{{ s }}</li>
+                </ul>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <ng-template #noplan>
+          <div class="tab-content empty-plan">
+            <mat-icon>hourglass_empty</mat-icon>
+            <p>Study plan will appear here after evaluation completes.</p>
+          </div>
+        </ng-template>
+      </mat-tab>
+
+    </mat-tab-group>
+  </div>
+</div>

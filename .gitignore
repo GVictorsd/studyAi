@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.env
+venv/
+.venv/
+*.sqlite3
+
+# ChromaDB
+backend/chroma_db/
+
+# Node
+node_modules/
+frontend/dist/
+frontend/.angular/
+
+# Storage (user uploads – don't commit)
+backend/storage/
+
+# IDE
+.vscode/settings.json
+.idea/
+*.suo
+*.user
+
+# OS
+.DS_Store
+Thumbs.db
