@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.db.database import engine, Base
 from app.api.routes import upload, evaluate, report, study_plan, students
+from app.api.routes.upload import textbook_router
 
 
 @asynccontextmanager
@@ -25,7 +26,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -33,6 +34,7 @@ app.add_middleware(
 
 app.include_router(students.router)
 app.include_router(upload.router)
+app.include_router(textbook_router)
 app.include_router(evaluate.router)
 app.include_router(report.router)
 app.include_router(study_plan.router)

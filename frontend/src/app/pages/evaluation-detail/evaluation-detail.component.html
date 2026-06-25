@@ -1,0 +1,183 @@
+<div class="detail-page">
+  <!-- Back -->
+  <button mat-button class="back-btn" (click)="goBack()">
+    <mat-icon>arrow_back</mat-icon> Back to Dashboard
+  </button>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="state-center">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Loading report…</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!loading && error" class="state-center error">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-stroked-button (click)="goBack()">Back</button>
+  </div>
+
+  <!-- Report -->
+  <ng-container *ngIf="!loading && !error && report">
+
+    <!-- Score Header -->
+    <div class="score-header">
+      <div class="overall-score" [style.border-color]="scoreColor(report.overall_score ?? 0)">
+        <span class="score-value" [style.color]="scoreColor(report.overall_score ?? 0)">
+          {{ report.overall_score | number:'1.0-1' }}%
+        </span>
+        <span class="score-level">{{ scoreLevel(report.overall_score ?? 0) }}</span>
+      </div>
+      <div class="score-chips">
+        <div class="chip-group">
+          <p class="chip-label">Strong Topics</p>
+          <div class="chips">
+            <span *ngFor="let t of report.strong_topics" class="chip chip-strong">{{ t }}</span>
+            <span *ngIf="!report.strong_topics?.length" class="chip-empty">None identified</span>
+          </div>
+        </div>
+        <div class="chip-group">
+          <p class="chip-label">Weak Topics</p>
+          <div class="chips">
+            <span *ngFor="let t of report.weak_topics" class="chip chip-weak">{{ t }}</span>
+            <span *ngIf="!report.weak_topics?.length" class="chip-empty">None identified</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <mat-card class="section-card" *ngIf="report.summary">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="section-icon">summarize</mat-icon>
+        <mat-card-title>AI Summary</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="summary-text">{{ report.summary }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Topic Scores Table -->
+    <mat-card class="section-card" *ngIf="topicRows.length > 0">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="section-icon">bar_chart</mat-icon>
+        <mat-card-title>Topic Scores</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <table mat-table [dataSource]="topicRows" class="detail-table">
+          <ng-container matColumnDef="topic">
+            <th mat-header-cell *matHeaderCellDef>Topic</th>
+            <td mat-cell *matCellDef="let row">{{ row.topic }}</td>
+          </ng-container>
+          <ng-container matColumnDef="score">
+            <th mat-header-cell *matHeaderCellDef>Score</th>
+            <td mat-cell *matCellDef="let row">
+              <div class="progress-row">
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar-fill"
+                    [style.width.%]="row.score"
+                    [style.background]="scoreColor(row.score)">
+                  </div>
+                </div>
+                <span class="score-num" [style.color]="scoreColor(row.score)">
+                  {{ row.score | number:'1.0-1' }}%
+                </span>
+              </div>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="level">
+            <th mat-header-cell *matHeaderCellDef>Level</th>
+            <td mat-cell *matCellDef="let row">
+              <span class="level-badge" [class]="'level-' + scoreLevel(row.score).toLowerCase().replace(' ', '-')">
+                {{ scoreLevel(row.score) }}
+              </span>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="topicColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: topicColumns;"></tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Per-Question Feedback Table -->
+    <mat-card class="section-card" *ngIf="feedbackRows.length > 0">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="section-icon">rate_review</mat-icon>
+        <mat-card-title>Answer Feedback</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <table mat-table [dataSource]="feedbackRows" class="detail-table feedback-table">
+          <ng-container matColumnDef="question">
+            <th mat-header-cell *matHeaderCellDef>Question</th>
+            <td mat-cell *matCellDef="let row" class="question-cell">
+              <p class="q-text">{{ row.question }}</p>
+              <p class="a-text"><strong>Your answer:</strong> {{ row.student_answer }}</p>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="topic">
+            <th mat-header-cell *matHeaderCellDef>Topic</th>
+            <td mat-cell *matCellDef="let row">
+              <span class="topic-tag">{{ row.topic }}</span>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="score">
+            <th mat-header-cell *matHeaderCellDef>Score</th>
+            <td mat-cell *matCellDef="let row">
+              <span class="score-num" [style.color]="scoreColor(row.score * 100)">
+                {{ row.score * 100 | number:'1.0-0' }}%
+              </span>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="feedback">
+            <th mat-header-cell *matHeaderCellDef>Feedback</th>
+            <td mat-cell *matCellDef="let row" class="feedback-cell">{{ row.feedback }}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="feedbackColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: feedbackColumns;"></tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Study Plan -->
+    <mat-card class="section-card" *ngIf="studyPlan?.plan_data">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="section-icon">event_note</mat-icon>
+        <mat-card-title>Study Plan</mat-card-title>
+        <mat-card-subtitle>{{ studyPlan!.plan_data.duration_weeks }}-week personalised plan</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+
+        <!-- Tips -->
+        <div *ngIf="studyPlan!.plan_data.tips?.length" class="plan-section">
+          <p class="plan-heading">Quick Tips</p>
+          <ul class="plan-list">
+            <li *ngFor="let tip of studyPlan!.plan_data.tips">{{ tip }}</li>
+          </ul>
+        </div>
+
+        <!-- Weekly Goals -->
+        <div *ngFor="let goal of studyPlan!.plan_data.weekly_goals" class="week-block">
+          <p class="week-title">Week {{ goal.week }} — <em>{{ goal.focus_topics.join(', ') }}</em></p>
+          <p class="week-milestone">Milestone: {{ goal.milestone }}</p>
+          <div *ngFor="let day of goal.daily_tasks" class="day-row">
+            <span class="day-label">{{ day.day }}</span>
+            <span *ngFor="let task of day.tasks" class="day-task">{{ task }}</span>
+          </div>
+        </div>
+
+        <!-- Resources -->
+        <div *ngIf="studyPlan!.plan_data.resources?.length" class="plan-section">
+          <p class="plan-heading">Resources</p>
+          <div *ngFor="let res of studyPlan!.plan_data.resources" class="resource-block">
+            <p class="resource-topic">{{ res.topic }}</p>
+            <ul class="plan-list">
+              <li *ngFor="let s of res.suggestions">{{ s }}</li>
+            </ul>
+          </div>
+        </div>
+
+      </mat-card-content>
+    </mat-card>
+
+  </ng-container>
+</div>

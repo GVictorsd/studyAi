@@ -1,13 +1,22 @@
 from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from app.db.database import get_db
 from app.models.models import Textbook, Exam
-from app.schemas.schemas import UploadResponse, ExamUploadResponse
+from app.schemas.schemas import UploadResponse, ExamUploadResponse, TextbookOut
 from app.services.storage_service import storage_service
 from app.services.vector_store import vector_store
 
 router = APIRouter(prefix="/upload", tags=["Upload"])
+
+textbook_router = APIRouter(prefix="/textbooks", tags=["Textbooks"])
+
+
+@textbook_router.get("", response_model=list[TextbookOut])
+async def list_textbooks(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Textbook).order_by(Textbook.uploaded_at.desc()))
+    return result.scalars().all()
 
 
 @router.post("/textbook", response_model=UploadResponse)

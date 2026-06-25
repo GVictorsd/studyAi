@@ -19,6 +19,30 @@ class StudentOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+# ── Textbook ──────────────────────────────────────────────────────────────────
+
+class TextbookOut(BaseModel):
+    id: str
+    title: str
+    is_indexed: bool
+    uploaded_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+# ── Exam list ────────────────────────────────────────────────────────────────
+
+class ExamListItem(BaseModel):
+    exam_id: str
+    status: str
+    created_at: datetime
+    evaluated_at: datetime | None
+    overall_score: float | None
+    report_id: str | None
+
+    model_config = {"from_attributes": True}
+
+
 # ── Upload responses ──────────────────────────────────────────────────────────
 
 class UploadResponse(BaseModel):

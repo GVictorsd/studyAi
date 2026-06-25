@@ -1,0 +1,53 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-header">
+      <mat-icon class="logo-icon">school</mat-icon>
+      <h1>StudyAI</h1>
+      <p class="subtitle">Exam Evaluator &amp; Study Coach</p>
+    </div>
+
+    <!-- Step 1: Email -->
+    <ng-container *ngIf="step === 'email'">
+      <p class="step-hint">Enter your email to sign in or create a new account.</p>
+      <form [formGroup]="emailForm" (ngSubmit)="checkEmail()" class="login-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email Address</mat-label>
+          <input matInput formControlName="email" type="email" placeholder="you@example.com" autocomplete="email" />
+          <mat-icon matSuffix>email</mat-icon>
+          <mat-error *ngIf="emailForm.get('email')?.hasError('required')">Email is required</mat-error>
+          <mat-error *ngIf="emailForm.get('email')?.hasError('email')">Enter a valid email address</mat-error>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit" class="submit-btn" [disabled]="loading">
+          <mat-spinner *ngIf="loading" diameter="20" class="btn-spinner"></mat-spinner>
+          <span *ngIf="!loading">Continue</span>
+        </button>
+      </form>
+    </ng-container>
+
+    <!-- Step 2: Name (new user only) -->
+    <ng-container *ngIf="step === 'name'">
+      <div class="new-user-banner">
+        <mat-icon>person_add</mat-icon>
+        <span>No account found for <strong>{{ emailForm.value.email }}</strong>. Enter your name to create one.</span>
+      </div>
+      <form [formGroup]="nameForm" (ngSubmit)="register()" class="login-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Full Name</mat-label>
+          <input matInput formControlName="name" placeholder="Your full name" autocomplete="name" />
+          <mat-icon matSuffix>person</mat-icon>
+          <mat-error *ngIf="nameForm.get('name')?.hasError('required')">Name is required</mat-error>
+          <mat-error *ngIf="nameForm.get('name')?.hasError('minlength')">At least 2 characters</mat-error>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit" class="submit-btn" [disabled]="loading">
+          <mat-spinner *ngIf="loading" diameter="20" class="btn-spinner"></mat-spinner>
+          <span *ngIf="!loading">Create Account</span>
+        </button>
+        <button mat-button type="button" class="back-btn" (click)="backToEmail()">
+          <mat-icon>arrow_back</mat-icon> Use a different email
+        </button>
+      </form>
+    </ng-container>
+  </div>
+</div>

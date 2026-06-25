@@ -1,350 +1,154 @@
 .dashboard-page {
-  max-width: 1100px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 28px 16px;
+  padding: 32px 24px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
-
-// ── Header ─────────────────────────────────────────────────────────────────
 
 .dash-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
 
-  .student-info {
+.dash-welcome {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  .avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #3f51b5;
+    color: #fff;
+    font-size: 1.4rem;
+    font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 16px;
+    justify-content: center;
+    flex-shrink: 0;
+  }
 
-    .avatar {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #3f51b5, #7c4dff);
-      color: white;
-      font-size: 1.5rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+  h2 {
+    margin: 0 0 4px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1a237e;
+  }
 
-    h2 {
-      margin: 0;
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: #1a237e;
-    }
-
-    p {
-      margin: 0;
-      color: #666;
-      font-size: 0.9rem;
-    }
+  p {
+    margin: 0;
+    color: #666;
+    font-size: 0.875rem;
   }
 }
 
-// ── States ────────────────────────────────────────────────────────────────
+.dash-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
 
-.loading-state,
-.error-state,
-.empty-state {
+// States
+.state-center {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 40vh;
   gap: 16px;
-  text-align: center;
+  padding: 64px 0;
+  color: #666;
 
   mat-icon {
-    font-size: 64px;
-    height: 64px;
-    width: 64px;
-    color: #9e9e9e;
+    font-size: 56px;
+    height: 56px;
+    width: 56px;
+    opacity: 0.4;
   }
 
-  p { color: #757575; font-size: 1rem; }
-  h3 { margin: 0; color: #424242; }
-}
-
-.error-state mat-icon { color: #c62828; }
-
-// ── Overview row ─────────────────────────────────────────────────────────
-
-.overview-row {
-  display: grid;
-  grid-template-columns: 200px 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 24px;
-
-  @media (max-width: 700px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.score-card {
-  border-left: 6px solid;
-  border-radius: 14px !important;
-
-  .score-circle {
-    font-size: 3rem;
-    font-weight: 800;
-    text-align: center;
-    line-height: 1;
-    margin: 8px 0 4px;
-  }
-
-  .score-label {
-    text-align: center;
-    font-weight: 600;
+  p {
+    margin: 0;
     font-size: 1rem;
-    margin: 0;
   }
 
-  .score-sub {
-    text-align: center;
-    color: #757575;
-    font-size: 0.85rem;
-    margin: 2px 0 0;
+  &.error {
+    color: #c62828;
+    mat-icon { color: #c62828; opacity: 0.7; }
   }
-}
 
-.info-card {
-  border-radius: 14px !important;
-
-  mat-card-content {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-
-    mat-icon {
-      font-size: 32px;
-      height: 32px;
-      width: 32px;
-    }
-
-    h3 {
-      font-size: 2rem;
-      font-weight: 800;
-      margin: 0;
-    }
-
-    p {
-      color: #757575;
-      margin: 0;
-      font-size: 0.9rem;
-    }
+  &.empty {
+    mat-icon { color: #3f51b5; }
   }
 }
 
-.weak-card {
-  border-top: 4px solid #e53935;
-  mat-icon { color: #e53935; }
-  h3 { color: #c62828; }
-}
-
-.strong-card {
-  border-top: 4px solid #43a047;
-  mat-icon { color: #43a047; }
-  h3 { color: #2e7d32; }
-}
-
-// ── Tabs ──────────────────────────────────────────────────────────────────
-
-.dash-tabs {
+// Table
+.table-card {
   border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
   overflow: hidden;
-  background: white;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
 }
 
-.tab-content {
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.eval-table {
+  width: 100%;
 }
 
-// ── Charts ────────────────────────────────────────────────────────────────
+.table-row {
+  transition: background 0.15s;
 
-.charts-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-
-  @media (max-width: 800px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.chart-card {
-  border-radius: 12px;
-  border: 1px solid #e8eaf6;
-
-  canvas { max-height: 300px; }
-}
-
-.summary-card {
-  border-radius: 12px;
-  border-left: 4px solid #3f51b5;
-
-  p {
-    line-height: 1.7;
-    color: #424242;
-  }
-}
-
-// ── Feedback ──────────────────────────────────────────────────────────────
-
-.feedback-item mat-card {
-  border-radius: 12px;
-  border: 1px solid #e8eaf6;
-}
-
-.q-num {
-  background: #3f51b5;
-  color: white;
-  width: 36px !important;
-  height: 36px !important;
-  border-radius: 50% !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.85rem;
-}
-
-.fb-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 12px;
-
-  @media (max-width: 700px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.fb-section {
-  h4 {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #757575;
-    margin: 0 0 4px;
-
-    mat-icon { font-size: 16px; height: 16px; width: 16px; }
-  }
-
-  p {
-    font-size: 0.95rem;
-    color: #424242;
-    margin: 0;
-    line-height: 1.5;
-  }
-}
-
-.correct-answer p { color: #2e7d32; }
-
-.feedback-box {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  background: #fffde7;
-  border-left: 4px solid #fbc02d;
-  border-radius: 6px;
-  padding: 10px 14px;
-  font-size: 0.9rem;
-  color: #5d4037;
-  line-height: 1.6;
-
-  mat-icon { color: #f9a825; flex-shrink: 0; margin-top: 2px; }
-}
-
-// ── Study Plan ────────────────────────────────────────────────────────────
-
-.plan-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  mat-icon { font-size: 28px; color: #3f51b5; }
-  h3 { margin: 0; font-size: 1.3rem; color: #1a237e; }
-}
-
-.tips-card {
-  border-left: 4px solid #ffca28;
-  border-radius: 12px;
-}
-
-.icon-yellow { color: #f9a825 !important; }
-
-.tips-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  li {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: #5d4037;
-    mat-icon { color: #ffb300; font-size: 20px; }
-  }
-}
-
-.week-block mat-card {
-  border-radius: 12px;
-  border: 1px solid #e8eaf6;
-}
-
-.week-avatar {
-  background: linear-gradient(135deg, #3f51b5, #7c4dff);
-  color: white;
-  width: 36px !important;
-  height: 36px !important;
-  border-radius: 50% !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.85rem;
-}
-
-.day-item { font-weight: 600; background: #f5f5f5; border-radius: 4px; }
-.task-item { padding-left: 16px !important; }
-
-.resources-card {
-  border-radius: 12px;
-  border: 1px solid #e8eaf6;
-
-  .resource-row {
-    margin-bottom: 12px;
-
-    strong { color: #3f51b5; font-size: 1rem; }
-
-    ul {
-      margin: 4px 0 0 16px;
-      padding: 0;
-      color: #424242;
-      font-size: 0.9rem;
-      line-height: 1.7;
+  &.clickable {
+    cursor: pointer;
+    &:hover {
+      background: #f5f7ff;
     }
   }
 }
 
-.empty-plan {
+// Status badge
+.status-badge {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  min-height: 200px;
-  mat-icon { font-size: 48px; height: 48px; width: 48px; color: #bdbdbd; }
-  p { color: #9e9e9e; }
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  .status-icon {
+    font-size: 15px;
+    height: 15px;
+    width: 15px;
+  }
+
+  &.status-evaluated {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  &.status-evaluating {
+    background: #fff8e1;
+    color: #f57f17;
+  }
+
+  &.status-pending {
+    background: #f5f5f5;
+    color: #616161;
+  }
+}
+
+// Score pill
+.score-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.score-pending {
+  color: #aaa;
 }

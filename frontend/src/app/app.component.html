@@ -1,13 +1,20 @@
-<mat-toolbar color="primary" class="app-toolbar">
-  <mat-icon class="toolbar-icon">school</mat-icon>
-  <span class="toolbar-title">StudyAI</span>
-  <span class="toolbar-subtitle">Exam Evaluator &amp; Study Coach</span>
-  <span class="spacer"></span>
-  <a mat-button routerLink="/upload" routerLinkActive="active-link">
-    <mat-icon>upload_file</mat-icon> Upload
-  </a>
-</mat-toolbar>
+<ng-container *ngIf="isLoggedIn$ | async as loggedIn">
+  <mat-toolbar color="primary" class="app-toolbar" *ngIf="loggedIn">
+    <mat-icon class="toolbar-icon">school</mat-icon>
+    <span class="toolbar-title">StudyAI</span>
+    <span class="spacer"></span>
+    <a mat-button routerLink="/dashboard" routerLinkActive="active-link">
+      <mat-icon>dashboard</mat-icon> Dashboard
+    </a>
+    <a mat-button routerLink="/textbooks" routerLinkActive="active-link">
+      <mat-icon>menu_book</mat-icon> Textbooks
+    </a>
+    <a mat-button routerLink="/upload" routerLinkActive="active-link">
+      <mat-icon>upload_file</mat-icon> New Evaluation
+    </a>
+  </mat-toolbar>
+</ng-container>
 
-<main class="app-content">
+<main [class.with-toolbar]="(isLoggedIn$ | async)">
   <router-outlet></router-outlet>
 </main>

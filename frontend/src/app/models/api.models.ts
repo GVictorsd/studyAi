@@ -10,6 +10,22 @@ export interface StudentOut {
   created_at: string;
 }
 
+export interface TextbookOut {
+  id: string;
+  title: string;
+  is_indexed: boolean;
+  uploaded_at: string;
+}
+
+export interface ExamListItem {
+  exam_id: string;
+  status: string;
+  created_at: string;
+  evaluated_at: string | null;
+  overall_score: number | null;
+  report_id: string | null;
+}
+
 export interface UploadResponse {
   id: string;
   filename: string;

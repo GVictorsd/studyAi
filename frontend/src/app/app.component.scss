@@ -2,7 +2,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  gap: 12px;
+  gap: 8px;
 
   .toolbar-icon {
     font-size: 28px;
@@ -11,15 +11,9 @@
   }
 
   .toolbar-title {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     font-weight: 700;
     letter-spacing: 0.5px;
-  }
-
-  .toolbar-subtitle {
-    font-size: 0.85rem;
-    opacity: 0.75;
-    margin-left: 8px;
   }
 }
 
@@ -32,7 +26,11 @@
   border-radius: 4px;
 }
 
-.app-content {
-  min-height: calc(100vh - 64px);
+main {
+  min-height: 100vh;
   background: #f5f7fa;
+
+  &.with-toolbar {
+    min-height: calc(100vh - 64px);
+  }
 }

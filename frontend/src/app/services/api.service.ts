@@ -9,6 +9,8 @@ import {
   EvaluateResponse,
   ReportOut,
   StudyPlanOut,
+  ExamListItem,
+  TextbookOut,
 } from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
@@ -23,6 +25,18 @@ export class ApiService {
 
   getStudent(studentId: string): Observable<StudentOut> {
     return this.http.get<StudentOut>(`${this.base}/students/${studentId}`);
+  }
+
+  getTextbooks(): Observable<TextbookOut[]> {
+    return this.http.get<TextbookOut[]>(`${this.base}/textbooks`);
+  }
+
+  getStudentByEmail(email: string): Observable<StudentOut> {
+    return this.http.get<StudentOut>(`${this.base}/students/by-email/${encodeURIComponent(email)}`);
+  }
+
+  getStudentExams(studentId: string): Observable<ExamListItem[]> {
+    return this.http.get<ExamListItem[]>(`${this.base}/students/${studentId}/exams`);
   }
 
   evaluate(payload: EvaluateRequest): Observable<EvaluateResponse> {

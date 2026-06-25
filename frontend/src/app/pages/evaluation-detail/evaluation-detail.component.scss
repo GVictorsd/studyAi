@@ -1,0 +1,296 @@
+.detail-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 24px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.back-btn {
+  align-self: flex-start;
+  color: #3f51b5;
+}
+
+// States
+.state-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 64px 0;
+  color: #666;
+
+  mat-icon {
+    font-size: 56px;
+    height: 56px;
+    width: 56px;
+    opacity: 0.4;
+  }
+
+  p { margin: 0; font-size: 1rem; }
+
+  &.error {
+    color: #c62828;
+    mat-icon { color: #c62828; opacity: 0.7; }
+  }
+}
+
+// Score header
+.score-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.overall-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 5px solid;
+  flex-shrink: 0;
+
+  .score-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .score-level {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #555;
+    margin-top: 4px;
+    text-align: center;
+  }
+}
+
+.score-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.chip-group {
+  .chip-label {
+    margin: 0 0 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #666;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+.chip {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 500;
+
+  &.chip-strong {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  &.chip-weak {
+    background: #fce4ec;
+    color: #c62828;
+  }
+}
+
+.chip-empty {
+  color: #aaa;
+  font-size: 0.82rem;
+}
+
+// Cards
+.section-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+.section-icon {
+  color: #3f51b5;
+  background: #e8eaf6;
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.summary-text {
+  line-height: 1.7;
+  color: #333;
+  margin: 8px 0 0;
+}
+
+// Tables
+.detail-table {
+  width: 100%;
+}
+
+// Progress bar
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress-bar-wrap {
+  flex: 1;
+  max-width: 180px;
+  height: 8px;
+  background: #eee;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s;
+}
+
+.score-num {
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+// Level badge
+.level-badge {
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+
+  &.level-excellent {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+  &.level-satisfactory {
+    background: #fff8e1;
+    color: #f57f17;
+  }
+  &.level-needs-improvement {
+    background: #fce4ec;
+    color: #c62828;
+  }
+}
+
+// Feedback table
+.feedback-table {
+  .question-cell {
+    max-width: 300px;
+    .q-text { margin: 0 0 4px; font-size: 0.875rem; }
+    .a-text { margin: 0; font-size: 0.8rem; color: #555; }
+  }
+  .feedback-cell {
+    max-width: 280px;
+    font-size: 0.85rem;
+    color: #444;
+  }
+}
+
+.topic-tag {
+  background: #e8eaf6;
+  color: #3f51b5;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+}
+
+// Study plan
+.plan-section {
+  margin-bottom: 16px;
+}
+
+.plan-heading {
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #3f51b5;
+  margin: 0 0 8px;
+}
+
+.plan-list {
+  margin: 0;
+  padding-left: 20px;
+
+  li {
+    margin-bottom: 6px;
+    color: #333;
+    font-size: 0.875rem;
+  }
+}
+
+.week-block {
+  background: #f5f7ff;
+  border-left: 4px solid #3f51b5;
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.week-title {
+  margin: 0 0 4px;
+  font-weight: 700;
+  color: #1a237e;
+  font-size: 0.9rem;
+}
+
+.week-milestone {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  color: #555;
+}
+
+.day-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.day-label {
+  background: #3f51b5;
+  color: #fff;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.day-task {
+  font-size: 0.82rem;
+  color: #333;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+
+.resource-block {
+  margin-bottom: 12px;
+  .resource-topic {
+    margin: 0 0 4px;
+    font-weight: 600;
+    color: #333;
+    font-size: 0.875rem;
+  }
+}

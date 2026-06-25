@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -14,33 +15,37 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatSelectModule } from '@angular/material/select';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatListModule } from '@angular/material/list';
-import { MatBadgeModule } from '@angular/material/badge';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatStepperModule } from '@angular/material/stepper';
-
-// Charts
-import { NgChartsModule } from 'ng2-charts';
+import { MatTableModule } from '@angular/material/table';
+import { MatSelectModule } from '@angular/material/select';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { LoginComponent } from './pages/login/login.component';
 import { UploadComponent } from './pages/upload/upload.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { EvaluationDetailComponent } from './pages/evaluation-detail/evaluation-detail.component';
+import { TextbooksComponent } from './pages/textbooks/textbooks.component';
 
 @NgModule({
-  declarations: [AppComponent, UploadComponent, DashboardComponent],
+  declarations: [
+    AppComponent,
+    LoginComponent,
+    UploadComponent,
+    DashboardComponent,
+    EvaluationDetailComponent,
+    TextbooksComponent,
+  ],
   imports: [
     BrowserModule,
+    CommonModule,
     BrowserAnimationsModule,
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
     AppRoutingModule,
-    // Material
     MatToolbarModule,
     MatButtonModule,
     MatCardModule,
@@ -50,16 +55,11 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
     MatProgressSpinnerModule,
     MatIconModule,
     MatChipsModule,
-    MatTabsModule,
     MatSnackBarModule,
-    MatSelectModule,
     MatDividerModule,
-    MatListModule,
-    MatBadgeModule,
     MatTooltipModule,
-    MatStepperModule,
-    // Charts
-    NgChartsModule,
+    MatTableModule,
+    MatSelectModule,
   ],
   bootstrap: [AppComponent],
 })

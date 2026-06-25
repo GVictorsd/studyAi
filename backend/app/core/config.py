@@ -3,8 +3,9 @@ from pathlib import Path
 
 
 class Settings(BaseSettings):
-    # Database
-    DATABASE_URL: str = "postgresql+asyncpg://postgres:password@localhost:5432/studyai"
+    # Database — defaults to embedded SQLite for local dev; set to a
+    # postgresql+asyncpg:// URL in .env (or via Docker) for production.
+    DATABASE_URL: str = "sqlite+aiosqlite:///./studyai.db"
 
     # Google AI
     GOOGLE_API_KEY: str = ""
@@ -19,7 +20,12 @@ class Settings(BaseSettings):
     # App
     APP_ENV: str = "development"
     SECRET_KEY: str = "change_me"
-    CORS_ORIGINS: list[str] = ["http://localhost:4200"]
+    # Comma-separated list of allowed origins, e.g. "http://localhost:4200,http://localhost:3000"
+    CORS_ORIGINS: str = "http://localhost:4200,http://localhost:4202"
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
 
     model_config = {"env_file": ".env", "extra": "ignore"}
 
