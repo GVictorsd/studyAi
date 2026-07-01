@@ -20,6 +20,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTableModule } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatListModule } from '@angular/material/list';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -28,6 +30,8 @@ import { UploadComponent } from './pages/upload/upload.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { EvaluationDetailComponent } from './pages/evaluation-detail/evaluation-detail.component';
 import { TextbooksComponent } from './pages/textbooks/textbooks.component';
+import { InsightsComponent } from './pages/insights/insights.component';
+import { StudyPlanPageComponent } from './pages/study-plan/study-plan.component';
 
 @NgModule({
   declarations: [
@@ -37,6 +41,8 @@ import { TextbooksComponent } from './pages/textbooks/textbooks.component';
     DashboardComponent,
     EvaluationDetailComponent,
     TextbooksComponent,
+    InsightsComponent,
+    StudyPlanPageComponent,
   ],
   imports: [
     BrowserModule,
@@ -60,6 +66,8 @@ import { TextbooksComponent } from './pages/textbooks/textbooks.component';
     MatTooltipModule,
     MatTableModule,
     MatSelectModule,
+    MatExpansionModule,
+    MatListModule,
   ],
   bootstrap: [AppComponent],
 })

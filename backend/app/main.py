@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.db.database import engine, Base
-from app.api.routes import upload, evaluate, report, study_plan, students
+from app.api.routes import upload, evaluate, report, study_plan, students, insights
 from app.api.routes.upload import textbook_router
 
 
@@ -38,6 +38,7 @@ app.include_router(textbook_router)
 app.include_router(evaluate.router)
 app.include_router(report.router)
 app.include_router(study_plan.router)
+app.include_router(insights.router)
 
 
 @app.get("/health", tags=["Health"])

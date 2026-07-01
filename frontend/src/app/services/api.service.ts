@@ -11,6 +11,7 @@ import {
   StudyPlanOut,
   ExamListItem,
   TextbookOut,
+  InsightsOut,
 } from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
@@ -49,5 +50,21 @@ export class ApiService {
 
   getStudyPlan(studentId: string): Observable<StudyPlanOut> {
     return this.http.get<StudyPlanOut>(`${this.base}/study-plan/${studentId}`);
+  }
+
+  getGlobalStudyPlan(studentId: string): Observable<StudyPlanOut> {
+    return this.http.get<StudyPlanOut>(`${this.base}/study-plan/${studentId}/global`);
+  }
+
+  refreshGlobalStudyPlan(studentId: string): Observable<StudyPlanOut> {
+    return this.http.post<StudyPlanOut>(`${this.base}/study-plan/${studentId}/refresh`, {});
+  }
+
+  getInsights(studentId: string): Observable<InsightsOut> {
+    return this.http.get<InsightsOut>(`${this.base}/insights/${studentId}`);
+  }
+
+  refreshInsights(studentId: string): Observable<InsightsOut> {
+    return this.http.post<InsightsOut>(`${this.base}/insights/${studentId}/refresh`, {});
   }
 }

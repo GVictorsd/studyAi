@@ -1,0 +1,248 @@
+<div class="insights-container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-text">
+      <mat-icon class="header-icon">insights</mat-icon>
+      <div>
+        <h1>Performance Insights</h1>
+        <p class="subtitle" *ngIf="insights">
+          Last updated {{ insights.generated_at | date:'medium' }}
+        </p>
+        <p class="subtitle" *ngIf="!insights && !loading">No insights generated yet</p>
+      </div>
+    </div>
+    <button mat-raised-button color="primary" (click)="refresh()" [disabled]="refreshing || loading" class="refresh-btn">
+      <mat-icon>refresh</mat-icon>
+      {{ refreshing ? 'Generating…' : 'Refresh Insights' }}
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading">
+    <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
+    <p>Loading insights…</p>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="!loading && !insights">
+    <mat-icon class="empty-icon">bar_chart</mat-icon>
+    <h2>No Insights Yet</h2>
+    <p>Complete at least one exam evaluation, then click <strong>Refresh Insights</strong> to generate your personalised performance analysis.</p>
+    <button mat-raised-button color="primary" (click)="refresh()" [disabled]="refreshing">
+      <mat-icon>auto_awesome</mat-icon> Generate Insights
+    </button>
+  </div>
+
+  <!-- Content -->
+  <ng-container *ngIf="!loading && insights && insightsData">
+
+    <!-- Row 1: Score + Trend + Readiness -->
+    <div class="metrics-row">
+
+      <mat-card class="metric-card">
+        <mat-card-content>
+          <div class="metric-label">Average Score</div>
+          <div class="metric-value" [ngClass]="scoreColor + '-text'">
+            {{ insightsData.average_score !== null ? (insightsData.average_score | number:'1.1-1') + '%' : 'N/A' }}
+          </div>
+          <mat-progress-bar [mode]="'determinate'" [value]="scorePercent" [color]="scoreColor" class="score-bar"></mat-progress-bar>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="metric-card">
+        <mat-card-content>
+          <div class="metric-label">Score Trend</div>
+          <div class="trend-display" [style.color]="trendInfo.color">
+            <mat-icon>{{ trendInfo.icon }}</mat-icon>
+            <span class="trend-label">{{ trendInfo.label }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="metric-card readiness-card" *ngIf="insightsData.readiness_score !== null">
+        <mat-card-content>
+          <div class="metric-label">Exam Readiness</div>
+          <div class="readiness-display">
+            <div class="readiness-ring" [style.--pct]="insightsData.readiness_score + '%'" [style.--color]="readinessColor">
+              <span class="readiness-value">{{ insightsData.readiness_score }}</span>
+            </div>
+            <span class="readiness-label">/ 100</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+    </div>
+
+    <!-- Row 2: Accuracy breakdown + Strongest/Weakest -->
+    <div class="accuracy-row">
+
+      <mat-card class="accuracy-card" *ngIf="insightsData.numerical_accuracy !== null || insightsData.theory_accuracy !== null">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>functions</mat-icon>
+          <mat-card-title>Accuracy by Question Type</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="acc-row" *ngIf="insightsData.numerical_accuracy !== null">
+            <span class="acc-label">Numericals</span>
+            <div class="acc-bar-wrap">
+              <div class="acc-bar-fill" [style.width.%]="insightsData.numerical_accuracy" [style.background]="rawScoreColor(insightsData.numerical_accuracy)"></div>
+            </div>
+            <span class="acc-pct" [style.color]="rawScoreColor(insightsData.numerical_accuracy)">{{ insightsData.numerical_accuracy | number:'1.0-1' }}%</span>
+          </div>
+          <div class="acc-row" *ngIf="insightsData.theory_accuracy !== null">
+            <span class="acc-label">Theory / Definitions</span>
+            <div class="acc-bar-wrap">
+              <div class="acc-bar-fill" [style.width.%]="insightsData.theory_accuracy" [style.background]="rawScoreColor(insightsData.theory_accuracy)"></div>
+            </div>
+            <span class="acc-pct" [style.color]="rawScoreColor(insightsData.theory_accuracy)">{{ insightsData.theory_accuracy | number:'1.0-1' }}%</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="areas-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>explore</mat-icon>
+          <mat-card-title>Subject Areas</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="area-row" *ngIf="insightsData.strongest_area">
+            <mat-icon class="strong-icon">star</mat-icon>
+            <div>
+              <div class="area-label">Strongest Area</div>
+              <div class="area-value strong">{{ insightsData.strongest_area }}</div>
+            </div>
+          </div>
+          <div class="area-row" *ngIf="insightsData.weakest_area">
+            <mat-icon class="weak-icon">warning</mat-icon>
+            <div>
+              <div class="area-label">Weakest Area</div>
+              <div class="area-value weak">{{ insightsData.weakest_area }}</div>
+            </div>
+          </div>
+          <p class="no-data" *ngIf="!insightsData.strongest_area && !insightsData.weakest_area">More exams needed</p>
+        </mat-card-content>
+      </mat-card>
+
+    </div>
+
+    <!-- Overall Summary -->
+    <mat-card class="section-card summary-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>subject</mat-icon>
+        <mat-card-title>Overall Summary</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="summary-text">{{ insightsData.overall_summary }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Recurring Mistakes -->
+    <mat-card class="section-card mistakes-card" *ngIf="insightsData.recurring_mistakes?.length">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="mistake-icon">report_problem</mat-icon>
+        <mat-card-title>Recurring Mistakes</mat-card-title>
+        <mat-card-subtitle>Detected patterns across multiple exams</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="mistake-list">
+          <div *ngFor="let m of insightsData.recurring_mistakes; let i = index" class="mistake-item">
+            <div class="mistake-num">{{ i + 1 }}</div>
+            <span>{{ m }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Topics Grid -->
+    <div class="topics-grid">
+
+      <mat-card class="section-card" *ngIf="insightsData.consistently_weak_topics.length">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="weak-icon">warning</mat-icon>
+          <mat-card-title>Consistently Weak</mat-card-title>
+          <mat-card-subtitle>Needs sustained attention</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-chip-set>
+            <mat-chip *ngFor="let t of insightsData.consistently_weak_topics" class="chip-weak">{{ t }}</mat-chip>
+          </mat-chip-set>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="section-card" *ngIf="insightsData.consistently_strong_topics.length">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="strong-icon">star</mat-icon>
+          <mat-card-title>Consistently Strong</mat-card-title>
+          <mat-card-subtitle>Your strengths</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-chip-set>
+            <mat-chip *ngFor="let t of insightsData.consistently_strong_topics" class="chip-strong">{{ t }}</mat-chip>
+          </mat-chip-set>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="section-card" *ngIf="insightsData.improving_topics.length">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="improving-icon">trending_up</mat-icon>
+          <mat-card-title>Improving</mat-card-title>
+          <mat-card-subtitle>Keep up the momentum</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-chip-set>
+            <mat-chip *ngFor="let t of insightsData.improving_topics" class="chip-improving">{{ t }}</mat-chip>
+          </mat-chip-set>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="section-card" *ngIf="insightsData.declining_topics.length">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="declining-icon">trending_down</mat-icon>
+          <mat-card-title>Declining</mat-card-title>
+          <mat-card-subtitle>Needs revisiting</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-chip-set>
+            <mat-chip *ngFor="let t of insightsData.declining_topics" class="chip-declining">{{ t }}</mat-chip>
+          </mat-chip-set>
+        </mat-card-content>
+      </mat-card>
+
+    </div>
+
+    <!-- Key Insights -->
+    <mat-card class="section-card" *ngIf="insightsData.key_insights.length">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>lightbulb</mat-icon>
+        <mat-card-title>Key Insights</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <ul class="insight-list">
+          <li *ngFor="let insight of insightsData.key_insights" class="insight-item">
+            <mat-icon class="bullet-icon">chevron_right</mat-icon>
+            <span>{{ insight }}</span>
+          </li>
+        </ul>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Recommendations -->
+    <mat-card class="section-card recommendations-card" *ngIf="insightsData.recommendations.length">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>recommend</mat-icon>
+        <mat-card-title>Recommendations</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="rec-grid">
+          <div *ngFor="let rec of insightsData.recommendations; let i = index" class="rec-item">
+            <div class="rec-number">{{ i + 1 }}</div>
+            <p>{{ rec }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </ng-container>
+
+</div>

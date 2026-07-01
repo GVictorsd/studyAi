@@ -48,13 +48,30 @@ export interface EvaluateResponse {
   message: string;
 }
 
+// ── Rubric ───────────────────────────────────────────────────────────────────
+
+export interface RubricMetric {
+  score: number;
+  comment: string;
+}
+
+export interface AnswerRubric {
+  correctness: RubricMetric;
+  completeness: RubricMetric;
+  conceptual_accuracy: RubricMetric;
+  writing_quality: RubricMetric;
+}
+
 export interface AnswerFeedback {
   question: string;
   student_answer: string;
   correct_answer: string;
+  topic: string;
+  question_type: 'numerical' | 'theory' | 'derivation' | 'definition' | null;
   score: number;
   feedback: string;
-  topic: string;
+  rubric: AnswerRubric | null;
+  missing_steps: string[] | null;
 }
 
 export interface ReportOut {
@@ -69,6 +86,8 @@ export interface ReportOut {
   created_at: string;
 }
 
+// ── Study Plan ───────────────────────────────────────────────────────────────
+
 export interface WeeklyGoal {
   week: number;
   focus_topics: string[];
@@ -79,12 +98,39 @@ export interface WeeklyGoal {
 export interface StudyPlanOut {
   id: string;
   student_id: string;
-  report_id: string;
+  report_id: string | null;
   plan_data: {
     duration_weeks: number;
     weekly_goals: WeeklyGoal[];
-    resources: { topic: string; suggestions: string[] }[];
+    resources: { topic: string; chapter_reference?: string | null; suggestions: string[] }[];
     tips: string[];
-  };
+  } | null;
+  generated_at: string;
+}
+
+// ── Insights ─────────────────────────────────────────────────────────────────
+
+export interface InsightsData {
+  average_score: number | null;
+  score_trend: 'improving' | 'declining' | 'stable' | 'insufficient_data';
+  strongest_area: string | null;
+  weakest_area: string | null;
+  numerical_accuracy: number | null;
+  theory_accuracy: number | null;
+  readiness_score: number | null;
+  consistently_weak_topics: string[];
+  consistently_strong_topics: string[];
+  improving_topics: string[];
+  declining_topics: string[];
+  recurring_mistakes: string[];
+  overall_summary: string;
+  key_insights: string[];
+  recommendations: string[];
+}
+
+export interface InsightsOut {
+  id: string;
+  student_id: string;
+  insights_data: InsightsData | null;
   generated_at: string;
 }

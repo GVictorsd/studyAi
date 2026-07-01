@@ -1,0 +1,280 @@
+.plan-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  .header-text {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    .header-icon {
+      font-size: 2.5rem;
+      height: 2.5rem;
+      width: 2.5rem;
+      color: #3f51b5;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      font-size: 0.875rem;
+      color: #666;
+    }
+
+    .duration-badge {
+      background: #e8eaf6;
+      color: #3f51b5;
+      border-radius: 12px;
+      padding: 2px 10px;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+  }
+
+  .refresh-btn mat-icon {
+    margin-right: 6px;
+  }
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64px 0;
+  gap: 16px;
+  color: #666;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 64px 24px;
+  gap: 16px;
+
+  .empty-icon {
+    font-size: 5rem;
+    height: 5rem;
+    width: 5rem;
+    color: #bdbdbd;
+  }
+
+  h2 { margin: 0; color: #555; }
+
+  p {
+    max-width: 480px;
+    color: #777;
+    line-height: 1.6;
+  }
+}
+
+.section-card {
+  margin-bottom: 24px;
+
+  mat-card-content {
+    padding: 0 16px 16px;
+  }
+}
+
+.tips-card {
+  background: linear-gradient(135deg, #fffde7 0%, #fff8e1 100%);
+
+  .tips-icon { color: #f9a825 !important; }
+}
+
+.tips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.tip-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px;
+  background: rgba(255,255,255,0.7);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #333;
+  line-height: 1.5;
+
+  .tip-icon {
+    color: #f9a825;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 28px 0 16px;
+
+  mat-icon {
+    color: #3f51b5;
+    font-size: 1.4rem;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1a1a2e;
+  }
+}
+
+.week-accordion {
+  margin-bottom: 24px;
+}
+
+.week-panel {
+  margin-bottom: 8px;
+  border-radius: 8px !important;
+  overflow: hidden;
+
+  &.mat-expanded {
+    box-shadow: 0 4px 16px rgba(63, 81, 181, 0.12) !important;
+  }
+}
+
+.week-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  .week-badge {
+    background: #3f51b5;
+    color: #fff;
+    border-radius: 20px;
+    padding: 3px 14px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .week-topics {
+    font-size: 0.85rem;
+    color: #555;
+  }
+}
+
+.milestone-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #e8eaf6;
+  border-left: 4px solid #3f51b5;
+  padding: 10px 14px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+  color: #333;
+
+  mat-icon {
+    color: #3f51b5;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+}
+
+.focus-topics {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+
+  .label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #888;
+  }
+}
+
+.topic-chip {
+  background: #e8eaf6 !important;
+  color: #3f51b5 !important;
+  font-size: 0.8rem !important;
+}
+
+.daily-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.day-row {
+  display: flex;
+  gap: 16px;
+  padding: 12px;
+  background: #fafafa;
+  border-radius: 6px;
+
+  .day-name {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #3f51b5;
+    min-width: 90px;
+    padding-top: 2px;
+  }
+
+  .task-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 0.9rem;
+    color: #333;
+    line-height: 1.7;
+  }
+}
+
+.resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.resource-card {
+  .resource-icon { color: #3f51b5 !important; }
+
+  mat-card-content {
+    padding: 0 16px 16px;
+  }
+
+  .resource-list {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 0.9rem;
+    color: #444;
+    line-height: 1.7;
+  }
+}
+
+.empty-section {
+  color: #999;
+  font-style: italic;
+  padding: 8px 0;
+}

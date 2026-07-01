@@ -51,6 +51,42 @@ class VectorStoreService:
         except Exception:
             return []
 
+    def index_with_metadata(
+        self,
+        collection_name: str,
+        chunks: list[str],
+        metadatas: list[dict],
+    ) -> None:
+        """Add pre-chunked documents with custom metadata to a named collection."""
+        collection = self.get_or_create_collection(collection_name)
+        ids = [str(uuid.uuid4()) for _ in chunks]
+        collection.add(documents=chunks, ids=ids, metadatas=metadatas)
+
+    def query_with_metadata(
+        self,
+        collection_name: str,
+        query: str,
+        n_results: int = 3,
+    ) -> list[dict]:
+        """Query and return documents together with their stored metadata."""
+        try:
+            collection = self.get_or_create_collection(collection_name)
+            count = collection.count()
+            if count == 0:
+                return []
+            results = collection.query(
+                query_texts=[query],
+                n_results=min(n_results, count),
+            )
+            documents = results["documents"][0] if results["documents"] else []
+            metadatas_list = results["metadatas"][0] if results["metadatas"] else []
+            return [
+                {"document": doc, "metadata": meta}
+                for doc, meta in zip(documents, metadatas_list)
+            ]
+        except Exception:
+            return []
+
     def _chunk_text(self, text: str, chunk_size: int = 800, overlap: int = 100) -> list[str]:
         words = text.split()
         chunks: list[str] = []

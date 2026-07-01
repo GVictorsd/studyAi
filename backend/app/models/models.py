@@ -19,6 +19,8 @@ class Student(Base):
 
     exams: Mapped[list["Exam"]] = relationship("Exam", back_populates="student")
     study_plans: Mapped[list["StudyPlan"]] = relationship("StudyPlan", back_populates="student")
+    insights: Mapped["StudentInsights | None"] = relationship("StudentInsights", back_populates="student", uselist=False)
+    mistake_context: Mapped["StudentMistakeContext | None"] = relationship("StudentMistakeContext", back_populates="student", uselist=False)
 
 
 class Textbook(Base):
@@ -79,3 +81,28 @@ class StudyPlan(Base):
     generated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     student: Mapped["Student"] = relationship("Student", back_populates="study_plans")
+
+
+class StudentMistakeContext(Base):
+    """Accumulated error-pattern context, updated after every evaluated exam."""
+    __tablename__ = "student_mistake_context"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=gen_uuid)
+    student_id: Mapped[str] = mapped_column(ForeignKey("students.id"), unique=True, nullable=False)
+    context_data: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    exam_count: Mapped[int] = mapped_column(default=0)
+    last_updated: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    student: Mapped["Student"] = relationship("Student", back_populates="mistake_context")
+
+
+class StudentInsights(Base):
+    """Accumulated performance insights across all evaluated exams for a student."""
+    __tablename__ = "student_insights"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=gen_uuid)
+    student_id: Mapped[str] = mapped_column(ForeignKey("students.id"), unique=True, nullable=False)
+    insights_data: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    generated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    student: Mapped["Student"] = relationship("Student", back_populates="insights")

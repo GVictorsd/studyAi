@@ -71,13 +71,28 @@ class EvaluateResponse(BaseModel):
 
 # ── Report ────────────────────────────────────────────────────────────────────
 
+class RubricMetric(BaseModel):
+    score: int
+    comment: str
+
+
+class AnswerRubric(BaseModel):
+    correctness: RubricMetric
+    completeness: RubricMetric
+    conceptual_accuracy: RubricMetric
+    writing_quality: RubricMetric
+
+
 class AnswerFeedback(BaseModel):
     question: str
     student_answer: str
     correct_answer: str | None
+    topic: str
+    question_type: str | None = None
     score: float
     feedback: str
-    topic: str
+    rubric: AnswerRubric | None = None
+    missing_steps: list[str] | None = None
 
 
 class ReportOut(BaseModel):
@@ -94,6 +109,18 @@ class ReportOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+# ── Mistake Context ───────────────────────────────────────────────────────────
+
+class MistakeContextOut(BaseModel):
+    id: str
+    student_id: str
+    context_data: dict[str, Any] | None
+    exam_count: int
+    last_updated: datetime
+
+    model_config = {"from_attributes": True}
+
+
 # ── Study Plan ────────────────────────────────────────────────────────────────
 
 class StudyPlanOut(BaseModel):
@@ -101,6 +128,17 @@ class StudyPlanOut(BaseModel):
     student_id: str
     report_id: str | None
     plan_data: dict[str, Any] | None
+    generated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+# ── Student Insights ──────────────────────────────────────────────────────────
+
+class InsightsOut(BaseModel):
+    id: str
+    student_id: str
+    insights_data: dict[str, Any] | None
     generated_at: datetime
 
     model_config = {"from_attributes": True}

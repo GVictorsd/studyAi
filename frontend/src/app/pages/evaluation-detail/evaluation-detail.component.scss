@@ -294,3 +294,217 @@
     font-size: 0.875rem;
   }
 }
+
+// ── Rubric expansion panels ──────────────────────────────────────────────────
+
+.feedback-content {
+  padding: 0 0 8px;
+}
+
+.question-panel {
+  margin-bottom: 8px;
+  border-radius: 8px !important;
+  overflow: hidden;
+
+  &.mat-expanded {
+    box-shadow: 0 4px 16px rgba(63, 81, 181, 0.1) !important;
+  }
+}
+
+.q-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .q-number {
+    background: #3f51b5;
+    color: #fff;
+    border-radius: 50%;
+    min-width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .q-preview {
+    font-size: 0.875rem;
+    color: #333;
+  }
+}
+
+.type-tag {
+  background: #f3e5f5;
+  color: #7b1fa2;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  margin-right: 6px;
+}
+
+.score-badge {
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-left: auto;
+}
+
+.panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 8px;
+}
+
+.qa-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qa-block {
+  padding: 12px 14px;
+  border-radius: 6px;
+  background: #fafafa;
+
+  .qa-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #888;
+    margin-bottom: 4px;
+  }
+
+  .qa-text {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #333;
+    line-height: 1.5;
+  }
+
+  &.student-answer {
+    background: #fff8e1;
+    border-left: 3px solid #f9a825;
+  }
+
+  &.model-answer {
+    background: #e8f5e9;
+    border-left: 3px solid #43a047;
+  }
+}
+
+.feedback-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #e8eaf6;
+  border-left: 4px solid #3f51b5;
+  padding: 10px 14px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  color: #333;
+  line-height: 1.5;
+
+  mat-icon {
+    color: #3f51b5;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+}
+
+.rubric-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rubric-metric {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 12px;
+
+  .metric-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .metric-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #555;
+  }
+
+  .metric-score {
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  .metric-bar-wrap {
+    height: 5px;
+    background: #eee;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .metric-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.4s;
+  }
+
+  .metric-comment {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #666;
+    line-height: 1.4;
+  }
+}
+
+.missing-steps {
+  background: #fff3e0;
+  border-left: 4px solid #ff9800;
+  border-radius: 4px;
+  padding: 12px 14px;
+
+  .missing-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #e65100;
+    margin-bottom: 8px;
+
+    mat-icon {
+      font-size: 1.1rem;
+      color: #ff9800;
+    }
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 18px;
+
+    li {
+      font-size: 0.85rem;
+      color: #555;
+      line-height: 1.6;
+    }
+  }
+}

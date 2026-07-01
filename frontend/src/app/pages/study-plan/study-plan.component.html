@@ -1,0 +1,134 @@
+<div class="plan-container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-text">
+      <mat-icon class="header-icon">menu_book</mat-icon>
+      <div>
+        <h1>My Study Plan</h1>
+        <p class="subtitle" *ngIf="plan">
+          Generated {{ plan.generated_at | date:'medium' }}
+          <span class="duration-badge" *ngIf="durationWeeks"> · {{ durationWeeks }}-week plan</span>
+        </p>
+        <p class="subtitle" *ngIf="!plan && !loading">No study plan yet</p>
+      </div>
+    </div>
+    <button mat-raised-button color="primary" (click)="refresh()" [disabled]="refreshing || loading" class="refresh-btn">
+      <mat-icon>refresh</mat-icon>
+      {{ refreshing ? 'Generating…' : 'Refresh Plan' }}
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading">
+    <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
+    <p>Loading your study plan…</p>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="!loading && !plan">
+    <mat-icon class="empty-icon">auto_stories</mat-icon>
+    <h2>No Study Plan Yet</h2>
+    <p>Complete at least one exam evaluation, then click <strong>Refresh Plan</strong> to generate a personalised multi-week study plan based on your accumulated performance.</p>
+    <button mat-raised-button color="primary" (click)="refresh()" [disabled]="refreshing">
+      <mat-icon>auto_awesome</mat-icon> Generate Study Plan
+    </button>
+  </div>
+
+  <!-- Content -->
+  <ng-container *ngIf="!loading && plan && plan.plan_data">
+
+    <!-- Tips -->
+    <mat-card class="section-card tips-card" *ngIf="tips.length">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="tips-icon">tips_and_updates</mat-icon>
+        <mat-card-title>Study Tips</mat-card-title>
+        <mat-card-subtitle>Keep these in mind throughout your plan</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="tips-grid">
+          <div *ngFor="let tip of tips" class="tip-item">
+            <mat-icon class="tip-icon">lightbulb</mat-icon>
+            <span>{{ tip }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Weekly Goals -->
+    <div class="section-header">
+      <mat-icon>calendar_month</mat-icon>
+      <h2>Weekly Schedule</h2>
+    </div>
+
+    <mat-accordion class="week-accordion" *ngIf="weeklyGoals.length; else noWeeks">
+      <mat-expansion-panel *ngFor="let goal of weeklyGoals" class="week-panel">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <div class="week-title">
+              <span class="week-badge">Week {{ goal.week }}</span>
+              <span class="week-topics" *ngIf="goal.focus_topics?.length">
+                {{ goal.focus_topics.join(' · ') }}
+              </span>
+            </div>
+          </mat-panel-title>
+          <mat-panel-description *ngIf="goal.milestone">
+            {{ goal.milestone }}
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <!-- Milestone -->
+        <div class="milestone-banner" *ngIf="goal.milestone">
+          <mat-icon>flag</mat-icon>
+          <strong>Milestone:</strong> {{ goal.milestone }}
+        </div>
+
+        <!-- Focus Topics -->
+        <div class="focus-topics" *ngIf="goal.focus_topics?.length">
+          <span class="label">Focus:</span>
+          <mat-chip-set>
+            <mat-chip *ngFor="let t of goal.focus_topics" class="topic-chip">{{ t }}</mat-chip>
+          </mat-chip-set>
+        </div>
+
+        <!-- Daily Tasks -->
+        <div class="daily-tasks" *ngIf="goal.daily_tasks?.length">
+          <div *ngFor="let day of goal.daily_tasks" class="day-row">
+            <div class="day-name">{{ day.day }}</div>
+            <ul class="task-list">
+              <li *ngFor="let task of day.tasks">{{ task }}</li>
+            </ul>
+          </div>
+        </div>
+
+      </mat-expansion-panel>
+    </mat-accordion>
+
+    <ng-template #noWeeks>
+      <p class="empty-section">No weekly schedule generated.</p>
+    </ng-template>
+
+    <!-- Resources -->
+    <div class="section-header" *ngIf="resources.length">
+      <mat-icon>library_books</mat-icon>
+      <h2>Resources</h2>
+    </div>
+
+    <div class="resources-grid" *ngIf="resources.length">
+      <mat-card *ngFor="let res of resources" class="resource-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="resource-icon">book</mat-icon>
+          <mat-card-title>{{ res.topic }}</mat-card-title>
+          <mat-card-subtitle *ngIf="res.chapter_reference">{{ res.chapter_reference }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <ul class="resource-list">
+            <li *ngFor="let s of res.suggestions">{{ s }}</li>
+          </ul>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+  </ng-container>
+
+</div>

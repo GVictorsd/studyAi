@@ -5,8 +5,8 @@ from sqlalchemy import select
 from app.db.database import get_db
 from app.models.models import Textbook, Exam
 from app.schemas.schemas import UploadResponse, ExamUploadResponse, TextbookOut
+from app.agents.textbook_knowledge_agent import textbook_knowledge_agent
 from app.services.storage_service import storage_service
-from app.services.vector_store import vector_store
 
 router = APIRouter(prefix="/upload", tags=["Upload"])
 
@@ -38,10 +38,9 @@ async def upload_textbook(
     await db.commit()
     await db.refresh(textbook)
 
-    # Index textbook asynchronously
     text = storage_service.read_text_from_path(str(file_path))
     if text.strip():
-        collection_name = vector_store.index_textbook(textbook.id, text)
+        collection_name = textbook_knowledge_agent.index(textbook.id, text)
         textbook.chroma_collection_id = collection_name
         textbook.is_indexed = True
         await db.commit()
