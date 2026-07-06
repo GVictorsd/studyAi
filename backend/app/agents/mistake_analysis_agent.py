@@ -1,10 +1,12 @@
 """
 Mistake Analysis Agent — detects and tracks error patterns over time.
 
-Runs in the background after every exam evaluation.  It reads the rubric-level
-answer feedback from the new report, merges it with the student's accumulated
-mistake context, and produces an updated context that downstream agents (Insights,
-StudyPlan) use to give targeted, pattern-aware advice.
+Rebuilt with Google ADK as an LlmAgent.
+
+Runs after every exam evaluation. It reads the rubric-level answer feedback
+from the new report, merges it with the student's accumulated mistake context,
+and produces an updated context that downstream agents (Insights, StudyPlan)
+use to give targeted, pattern-aware advice.
 
 Tracked patterns include:
   • Skipping derivation steps
@@ -19,39 +21,37 @@ import json
 import re
 from typing import Any
 
-import google.generativeai as genai
+from google.adk.agents import LlmAgent
 
-from app.core.config import settings
+from app.agents.adk_runner import run_agent_task
 
+_MODEL = "gemini-2.5-flash-lite-preview-06-17"
 
-genai.configure(api_key=settings.GOOGLE_API_KEY)
+# ─────────────────────────────────────────────────────────────────────────────
+# ADK agent definition
+# ─────────────────────────────────────────────────────────────────────────────
 
+_INSTRUCTION = """You are an expert academic tutor building a long-term mistake profile for a student.
 
-MISTAKE_ANALYSIS_PROMPT = """
-You are an expert academic tutor building a long-term mistake profile for a student.
+You will receive a new exam evaluation report and the student's existing accumulated
+mistake context. Your job is to:
+  1. Analyse the new exam data to identify error patterns.
+  2. Merge them with the existing context to produce an updated cumulative profile.
 
-━━━ NEW EXAM DATA ━━━
-{new_exam_data}
+Return a JSON object with this exact shape (no markdown fences, no surrounding text):
 
-━━━ EXISTING ACCUMULATED CONTEXT ({existing_exam_count} previous exams) ━━━
-{existing_context}
-
-Analyse the new exam data, identify error patterns, and merge them with the
-existing context to produce an updated cumulative mistake profile.
-
-Return a JSON object with this exact shape (no markdown fences):
-{{
+{
   "total_exams_analyzed": <int>,
   "recurring_issues": [
-    {{
+    {
       "pattern": "<descriptive name, e.g. 'Skips derivation steps'>",
       "frequency": <int — how many exams this pattern appeared in>,
       "affected_topics": ["topic1", "topic2"],
       "example": "<one concrete example from the student's answers>"
-    }}
+    }
   ],
-  "topic_weakness_frequency": {{ "<topic>": <int count of exams where weak>, ... }},
-  "error_type_counts": {{
+  "topic_weakness_frequency": { "<topic>": <int count of exams where weak>, ... },
+  "error_type_counts": {
     "skips_derivation_steps": <int>,
     "calculation_errors": <int>,
     "incomplete_definitions": <int>,
@@ -59,23 +59,37 @@ Return a JSON object with this exact shape (no markdown fences):
     "poor_answer_structure": <int>,
     "missing_units": <int>,
     "sign_errors": <int>
-  }},
-  "question_type_scores": {{
+  },
+  "question_type_scores": {
     "numerical":  [<float scores 0-100 across all analysed exams>],
     "theory":     [<float scores>],
     "derivation": [<float scores>],
     "definition": [<float scores>]
-  }}
-}}
+  }
+}
 
 Rules:
 - Merge counts from existing context with counts from the new exam.
-- recurring_issues: include any pattern seen in 2+ exams AND notable single-exam patterns from this exam.
+- recurring_issues: include any pattern seen in 2+ exams AND notable single-exam patterns.
 - question_type_scores: append the new exam's per-type averages to existing lists.
 - Be specific in pattern names and examples.
-- Return ONLY valid JSON.
-"""
+- Return ONLY valid JSON."""
 
+
+mistake_analysis_adk_agent = LlmAgent(
+    name="mistake_analysis_agent",
+    model=_MODEL,
+    description=(
+        "Analyses student exam errors, detects recurring patterns, and "
+        "maintains a cumulative mistake profile across all exams."
+    ),
+    instruction=_INSTRUCTION,
+)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Formatting helpers
+# ─────────────────────────────────────────────────────────────────────────────
 
 def _extract_question_type_scores(answer_feedback: list[dict]) -> dict[str, float | None]:
     """Compute average score (0-100) per question_type from an exam's feedback list."""
@@ -108,63 +122,79 @@ def _format_new_exam(report: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-class MistakeAnalysisAgent:
-    """Updates the student's cumulative mistake context after every exam."""
+# ─────────────────────────────────────────────────────────────────────────────
+# Public API
+# ─────────────────────────────────────────────────────────────────────────────
 
-    def __init__(self):
-        self.model = genai.GenerativeModel("gemini-1.5-flash")
+async def update_context(
+    new_report: dict[str, Any],
+    existing_context: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """
+    Run the ADK mistake analysis agent to merge a new exam report into the
+    student's cumulative mistake profile.
 
-    async def update_context(
-        self,
-        new_report: dict[str, Any],
-        existing_context: dict[str, Any] | None,
-    ) -> dict[str, Any]:
-        new_exam_str = _format_new_exam(new_report)
-        existing_count = (existing_context or {}).get("total_exams_analyzed", 0)
-        existing_str = json.dumps(existing_context, indent=2) if existing_context else "None — this is the first exam."
+    Args:
+        new_report:       The evaluation dict from EvaluationAgent.
+        existing_context: The student's current mistake context, or None for
+                          first-exam analysis.
 
-        prompt = MISTAKE_ANALYSIS_PROMPT.format(
-            new_exam_data=new_exam_str,
-            existing_exam_count=existing_count,
-            existing_context=existing_str,
-        )
+    Returns:
+        Updated cumulative mistake context dict.
+    """
+    new_exam_str = _format_new_exam(new_report)
+    existing_count = (existing_context or {}).get("total_exams_analyzed", 0)
+    existing_str = (
+        json.dumps(existing_context, indent=2)
+        if existing_context
+        else "None — this is the first exam."
+    )
 
-        response = self.model.generate_content(prompt)
-        result = self._parse_response(response.text)
+    message = f"""Analyse the following new exam data and update the student's cumulative mistake profile.
 
-        if not result.get("total_exams_analyzed"):
-            result["total_exams_analyzed"] = existing_count + 1
+━━━ NEW EXAM DATA ━━━
+{new_exam_str}
 
-        return result
+━━━ EXISTING ACCUMULATED CONTEXT ({existing_count} previous exam(s)) ━━━
+{existing_str}
 
-    def _parse_response(self, raw: str) -> dict[str, Any]:
-        cleaned = re.sub(r"```(?:json)?|```", "", raw).strip()
-        try:
-            return json.loads(cleaned)
-        except json.JSONDecodeError:
-            return self._empty_context()
+Produce the updated cumulative mistake profile JSON as specified in your instructions."""
 
-    def _empty_context(self) -> dict[str, Any]:
-        return {
-            "total_exams_analyzed": 1,
-            "recurring_issues": [],
-            "topic_weakness_frequency": {},
-            "error_type_counts": {
-                "skips_derivation_steps": 0,
-                "calculation_errors": 0,
-                "incomplete_definitions": 0,
-                "conceptual_gaps": 0,
-                "poor_answer_structure": 0,
-                "missing_units": 0,
-                "sign_errors": 0,
-            },
-            "question_type_scores": {
-                "numerical": [],
-                "theory": [],
-                "derivation": [],
-                "definition": [],
-            },
-        }
+    raw = await run_agent_task(mistake_analysis_adk_agent, message)
+    result = _parse_response(raw)
+
+    if not result.get("total_exams_analyzed"):
+        result["total_exams_analyzed"] = existing_count + 1
+
+    return result
 
 
-mistake_analysis_agent = MistakeAnalysisAgent()
+def _parse_response(raw: str) -> dict[str, Any]:
+    cleaned = re.sub(r"```(?:json)?|```", "", raw).strip()
+    try:
+        return json.loads(cleaned)
+    except json.JSONDecodeError:
+        return _empty_context()
+
+
+def _empty_context() -> dict[str, Any]:
+    return {
+        "total_exams_analyzed": 1,
+        "recurring_issues": [],
+        "topic_weakness_frequency": {},
+        "error_type_counts": {
+            "skips_derivation_steps": 0,
+            "calculation_errors": 0,
+            "incomplete_definitions": 0,
+            "conceptual_gaps": 0,
+            "poor_answer_structure": 0,
+            "missing_units": 0,
+            "sign_errors": 0,
+        },
+        "question_type_scores": {
+            "numerical": [],
+            "theory": [],
+            "derivation": [],
+            "definition": [],
+        },
+    }

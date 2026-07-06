@@ -6,7 +6,7 @@ from datetime import datetime
 from app.db.database import get_db
 from app.models.models import StudentInsights, StudentMistakeContext, Exam, Report
 from app.schemas.schemas import InsightsOut
-from app.agents.insights_agent import insights_agent
+from app.agents.insights_agent import generate as generate_insights
 
 router = APIRouter(prefix="/insights", tags=["Insights"])
 
@@ -58,7 +58,7 @@ async def refresh_insights(student_id: str, db: AsyncSession = Depends(get_db)):
             })
 
     mistake_context = await _fetch_mistake_context(student_id, db)
-    generated = await insights_agent.generate(reports_data, mistake_context=mistake_context)
+    generated = await generate_insights(reports_data, mistake_context=mistake_context)
 
     existing_result = await db.execute(
         select(StudentInsights).where(StudentInsights.student_id == student_id)

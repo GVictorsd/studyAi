@@ -6,7 +6,7 @@ from datetime import datetime
 from app.db.database import get_db
 from app.models.models import StudyPlan, StudentMistakeContext, Exam, Report
 from app.schemas.schemas import StudyPlanOut
-from app.agents.study_plan_agent import study_plan_agent
+from app.agents.study_plan_agent import generate as generate_study_plan
 
 router = APIRouter(prefix="/study-plan", tags=["Study Plan"])
 
@@ -98,7 +98,7 @@ async def refresh_global_study_plan(student_id: str, db: AsyncSession = Depends(
 
     mistake_context = await _fetch_mistake_context(student_id, db)
 
-    plan_result = await study_plan_agent.generate(
+    plan_result = await generate_study_plan(
         report=aggregated_report,
         mistake_context=mistake_context,
     )
